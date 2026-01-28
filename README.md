@@ -166,7 +166,7 @@ Displays additional system messages for debugging.
 
 ---
 
-##️ To-Do
+## To-Do
 
 * Add argument parsing
 * Allow changing the working directory at runtime
