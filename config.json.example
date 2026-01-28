@@ -1,0 +1,11 @@
+{
+    "catalog_only":    False,
+    "export_cover":    True,
+    "export_metadata": True,
+    "export_cue":      True,
+    "force_download":  False,
+    "prefered_output": "M4B",
+    "output_dir":      "./Audiobooks",
+    "working_dir":     "./",
+    "debug":           0
+}
