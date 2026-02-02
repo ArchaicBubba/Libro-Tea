@@ -1,11 +1,18 @@
 {
-    "catalog_only":    False,
-    "export_cover":    True,
-    "export_metadata": True,
-    "export_cue":      True,
-    "force_download":  False,
-    "prefered_output": "M4B",
-    "output_dir":      "./Audiobooks",
-    "working_dir":     "./",
-    "debug":           0
+        "catalog_only":           false,
+        "export_cover":           true,
+        "export_metadata":        true,
+        "export_cue":             true,
+        "force_download":         false,
+        "rename_to-title":        true, 
+        "prefered_output":        "M4B",
+        "account_file":           "account.json",
+        "account_dir":            "./",
+        "config_file":            "config.json",
+        "config_dir":             "./",
+        "database_file":          "database.db",
+        "database_dir":           "./",
+        "output_dir":             "./Audiobooks",
+        "working_dir":            ".",
+        "debug":                  0
 }

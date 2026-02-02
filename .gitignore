@@ -208,7 +208,18 @@ marimo/_lsp/
 __marimo__/
 
 # Repository specific
+## DIR
+Audiobooks/
+main.dist/
+main.build/
+main.onefile-build/
+.vscode/
+
+## Files
 account.json
+accounts.json
+config.json
 library.db
 note.txt
 requirements.txt
+LICENSE

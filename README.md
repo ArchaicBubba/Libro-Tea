@@ -134,12 +134,12 @@ Sets the output directory for audiobooks.
 
 #### `Current Working Dir`
 
-Sets the working directory for the program.
+Sets the working directory for the program. This is were your config.son, account.json, and library.db are. Should be set in both the environment and config file (if being used). 
 
 * **Config File key name:** `working_dir`
 * **Environment Variable:** `LIBRO-TEA_working_dir`
 * **Accepted Values:** System paths
-* **Default:** `./`
+* **Default:** `.`
 
 ---
 
@@ -157,18 +157,8 @@ Displays additional system messages for debugging.
 
 ---
 
-## Required Python Modules
-
-* `librofm`
-* `requests`
-* `mutagen`
-* `pathlib`
-
----
-
 ## To-Do
 
+* Docker Container
 * Add argument parsing
-* Allow changing the working directory at runtime
-* Support case-insensitive environment variables
 * Reset audiobook download status
