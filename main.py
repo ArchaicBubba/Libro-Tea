@@ -21,7 +21,7 @@ if __name__ == "__main__":
     
     if len(accounts) == 0:
         print("SYS MES -  ERROR  - No Libro.fm accounts detected.")
-        settings.exit_libro_tea() # EXIT
+        cmdArg.sys_arg_help() # EXIT
 
     if parsedArg.get("isbn"):
             downloader.download_by_isbn(accounts, parsedArg["isbn"])

@@ -51,6 +51,10 @@ def sys_arg_parser(arguments: list):
                 settings.config["debug"] = 1 
                 continue
 
+            case "-vv":
+                settings.config["debug"] = 2
+                continue
+
             case a if a.startswith("--download-one"):
                 if "=" in arg:
                     arg, isbn = arg.split("=")
@@ -73,7 +77,7 @@ def sys_arg_parser(arguments: list):
                     previousArg = arg
                 continue
 
-            case "--prefered-output":
+            case "--preferred-output":
                 if "=" in arg:
                     fileFormat = arg.split("=")
                     settings.config["output_dir"] = fileFormat[1]
@@ -134,7 +138,7 @@ def sys_arg_parser(arguments: list):
             case _:
                 print(f"SYS MES -  ERROR  - Invalid Peramiter: {arg}")
                 sys_arg_help()
-                
+
     return parsedArg
 
 # Gets file paths and names and seperates for user arguments
@@ -176,11 +180,12 @@ Libro-Tea allows you to download all audiobooks owned by one or more Libro.fm ac
          --download-all: Downloads all audiobooks, regardless of download status
          --output-path: Changes the audiobook folder name and location.
             Default "./Audiobook".
-         --prefered-output: Prefered output format MP3 or M4B. 
+         --preferred-output: Prefered output format MP3 or M4B. 
             Default: m4b
          --account: Json file used to store accounts for downloading audiobooks. File path to location.
             Example: ./documents/account.json
          --database: SQL database used to hold download statuses. File path to database location.
             Example: ./music/Audiobooks/library.db
-    -v | --debug: Displays additonal debugging messages
+    -v | --debug: Displays Debug level 1 messages. 
+    -vv         : Displays debug level 2 messages.
     """)
