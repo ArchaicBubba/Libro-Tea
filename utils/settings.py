@@ -2,14 +2,15 @@ import os, json, sys
 
 # exit libro-tea
 def exit_libro_tea():
-    sys.exit("SYS MES -   END   - Exiting Libro-Tea")
+    debug_mes(0, "END", "Exiting Libro-Tea")
+    sys.exit()
 
 # sets global enviorment configs
 def get_config() -> dict:
     global version
     global config
 
-    version = "1.0"
+    version = "beta"
     # Declare intial global config
     config = {
         "catalog_only":    get_env_var("LIBRO-TEA_catalog_only", False),
@@ -63,7 +64,7 @@ def get_config() -> dict:
 # gets case insenstive env variables
 def get_env_var(envVar, defaultValue):
     for key in os.environ.keys():
-        if key.lower()==envVar.lower():
+        if key.lower() == envVar.lower():
             foundEnvVar = os.environ.get(key)
 
             if foundEnvVar.lower()=="false":
@@ -85,4 +86,20 @@ def get_docker_secret_value(secret_file) -> str:
     normal_value = os.environ.get(secret_file)
     return normal_value
 
-#if __name__ == "__main__":
+# Displays system and debug messages. done without logger.
+# settings.debug_mes(, "", f"")
+def debug_mes(debug_lvl: int, mes_status:str, mes: str) -> None:
+    if config["debug"] >= debug_lvl:
+        match debug_lvl:
+            case _ if debug_lvl == 1:
+                print(f"DEBUG 1 - {mes_status.capitalize().center(7)} - {mes}")
+                return
+            case _ if debug_lvl >= 2:
+                print(f"DEBUG 2 - {mes_status.capitalize().center(7)} - {mes}")
+                return
+            case _:
+                print(f"SYS MES - {mes_status.capitalize().center(7)} - {mes}")
+                return
+    else:
+        return 
+
