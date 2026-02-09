@@ -1,4 +1,4 @@
-from . import libraryManagment, settings, metadata
+from . import libraryManagement, settings, metadata
 import zipfile, os
 from librofm.client import LibroFMClient
 from librofm.util import clean_filename
@@ -6,8 +6,8 @@ from pathlib import Path
 
 # main downloads audiobooks function
 def download_audiobook(audiobook: dict, client: dict) -> bool:
-    if settings.config["debug"]>=1:
-        print(f"Debug 1 - RUNNING - Preping \"{audiobook.title}\" download.")
+    settings.debug_mes(1, "RUNNING", f"Preping \"{audiobook.title}\" download.")
+
     # Identifes and makes audiobook path. 
     authors = Path(clean_filename(', '.join(audiobook.authors)))
     title = Path(clean_filename(audiobook.title))
@@ -23,29 +23,29 @@ def download_audiobook(audiobook: dict, client: dict) -> bool:
     # In try catch in case download failes, wont kill eithire 
     try:
         if settings.config["prefered_output"].lower()=="mp3":
-            print(f"SYS MES - RUNNING - Starting download for \"{audiobook.title}\" in MP3; please wait.")
+            settings.debug_mes(0, "RUNNING", f"Starting download for \"{audiobook.title}\" in MP3; please wait.")
             attempt = client.download_mp3(audiobook, path)
             extract_zip(path)
 
         elif settings.config["prefered_output"].lower()=="m4b":
-            print(f"SYS MES - RUNNING - Starting download for \"{audiobook.title}\" in M4B; please wait.")
+            settings.debug_mes(0, "Running", f"Starting download for \"{audiobook.title}\" in M4B; please wait.")
             attempt = client.download_m4b(audiobook, path)
 
         else: # IF not specified by user, it will attempt both
-            print(f"SYS MES - RUNNING - Starting download for \"{audiobook.title}\".  please wait.")
+            settings.debug_mes(0, "Running", f"Starting download for \"{audiobook.title}\".  please wait.")
             attempt = client.download(audiobook, path)
 
         if not attempt:
 
             # Additonal success check before modifying database
-            print(f"SYS MES -  ERROR  - Failed to download {audiobook.title}")
+            settings.debug_mes(0, "Error", f"Failed to download {audiobook.title}")
             return False
 
         # Changes audiobook status in database
-        libraryManagment.set_book_downloaded(audiobook.isbn)
+        libraryManagement.set_book_downloaded(audiobook.isbn)
 
     except Exception as e:
-        print(f"SYS MES -  ERROR  - Error downloading \"{audiobook.title}\": {e}")
+        settings.debug_mes(0, "ERROR", f"Error downloading \"{audiobook.title}\": {e}")
         return False
     
     # Checks and changes name of the audiobook audio files
@@ -64,66 +64,71 @@ def download_audiobook(audiobook: dict, client: dict) -> bool:
     if settings.config["export_cue"]==True:
         metadata.generate_cue_from_file(audiobook.title, path)
     
-    if settings.config["debug"]>=2:
-        print(f"Debug 2 - SUCCESS - Download for \"{audiobook.title}\" complete.")
+    settings.debug_mes(2, "SUCCESS", f"Download for \"{audiobook.title}\" complete.")
     return True
 
 # Decides weather to download audiobook based off of library database. If audiobook is "New" it will be downloaded. 
 # Audiobooks are stored in database as ISBNs, if multuple accounts own the same book it will only be downloaded once. 
 def download_only_new(accounts: dict) -> bool:
-    if settings.config["debug"]>=1:
-        print(f"Debug 1 - RUNNING - Downloading only new audiobooks.")
+    settings.debug_mes(1, "RUNNING", "Downloading only new audiobooks.")
+
     for account in accounts.values():
         # in try Catch to check if account credentials are valid, if not it wont kill the program and will try the next account if present.
         try:
             client = LibroFMClient(account["email"],account["password"])
             page = client.get_library()
             # Checks and downloads each new audiobook in the account. 
+
             for audiobook in page.audiobooks:                        
-                if not libraryManagment.check_book_exists(audiobook.isbn):
-                    libraryManagment.add_book(audiobook.isbn, audiobook.title)
+                if not libraryManagement.check_book_exists(audiobook.isbn):
+                    libraryManagement.add_book(audiobook.isbn, audiobook.title)
                     download_audiobook(audiobook, client)
                     continue
+
                 else:
-                    if libraryManagment.is_book_downloaded(audiobook.isbn):
+                    if libraryManagement.is_book_downloaded(audiobook.isbn):
                         continue
+
                 download_audiobook(audiobook, client)
+
         except Exception as e:
-            print(f"SYS MES -  ERROR  - {e}")
+            settings.debug_mes(0, "ERROR", f"{e}")
             return False
-    if settings.config["debug"]>=2:
-        print("Debug 2 - SUCCESS - All new audiobooks downloaded.")
+
+    settings.debug_mes(2, "SUCCESS", "All new audiobooks downloaded.")
     return True
 
 # Audiobooks are stored in database as ISBNs, if multuple accounts own the same book it will only be downloaded once. 
 def download_by_isbn(accounts: dict, isbn: int) -> bool:
-    if settings.config["debug"]>=1:
-        print(f"Debug 1 - RUNNING - Only downloading book with the ISBN: {isbn}.")
+    settings.debug_mes(1, "RUNNING", f"Only downloading audiobook with the ISBN: {isbn}.")
+
     for account in accounts.values():
         # in try Catch to check if account credentials are valid, if not it wont kill the program and will try the next account if present.
         try:
             client = LibroFMClient(account["email"],account["password"])
             page = client.get_library()
             # Checks and downloads each new audiobook in the account. 
+
             for audiobook in page.audiobooks:
                 if int(audiobook.isbn) == int(isbn):
                     download_audiobook(audiobook, client)
                     return True
                 else:
                     continue
+        
         except Exception as e:
-            print(f"SYS MES -  ERROR  - {e}")
+            settings.debug_mes(0, "ERROR", f"{e}")
             return False
-    if settings.config["debug"]>=2:
-        print(f"Debug 2 - RUNNING - Single Book downloaded.")
+    
+    settings.debug_mes(2, "RUNNING", f"Single Book Downloaded")
     return False
 
 # Force Redownload of all Audiobooks, Still sets audiobooks as downloaded in database. 
 def force_download_all(accounts: dict) -> bool:
-    if settings.config["debug"]>=1:
-        print(f"Debug 1 - RUNNING - Downloading all audiobooks associated with given accounts.")
     if not settings.config["force_download"]:
         return
+
+    settings.debug_mes(1, "RUNNING", "Downloading all audiobooks associated with given accounts.")
     for account in accounts.values():
         # in try Catch to check if account credentials are valid, if not it wont kill the program and will try the next account if present.
         try:
@@ -132,53 +137,61 @@ def force_download_all(accounts: dict) -> bool:
             for audiobook in page.audiobooks:
                 download_audiobook(audiobook, client)
             return True
+
         except Exception as e:
-            print(f"SYS MES -  ERROR  - {e}")
+            settings.debug_mes(0, "ERROR", f"{e}")
             return False
-    if settings.config["debug"]>=2:
-        print(f"Debug 2 - RUNNING - Preping \"{audiobook.title}\" download.")
+
+    settings.debug_mes(0, "SUCCESS", f"All audiobooks downloaded")
     return True
 
 # only catalogs Audiobooks for a dry run
 def catalog(accounts: dict) -> bool:
-    if settings.config["debug"]>=1:
-        print(f"Debug 1 - RUNNING - Creating audiobook folder strucure and cataloging audiobooks.")
+    settings.debug_mes(1, "RUNNING", f"Creating audiobook folder strucure and cataloging audiobooks.")
+
     if not settings.config["catalog_only"]:
         return False
+
     for account in accounts.values():
         # in try Catch to check if account credentials are valid, if not it wont kill the program and will try the next account if present.
         try:
             client = LibroFMClient(account["email"],account["password"])
             page = client.get_library()
+
             for audiobook in page.audiobooks:
                 authors = Path(clean_filename(', '.join(audiobook.authors)))
                 title = Path(clean_filename(audiobook.title))
                 path = settings.config["output_dir"] / authors / title
                 path.mkdir(parents=True, exist_ok=True)
-                if not libraryManagment.check_book_exists(audiobook.isbn):
-                    libraryManagment.add_book(audiobook.isbn, audiobook.title)
+
+                if not libraryManagement.check_book_exists(audiobook.isbn):
+                    libraryManagement.add_book(audiobook.isbn, audiobook.title)
                 else:
                     continue
+
         except Exception as e:
-            print(f"SYS MES -  ERROR  - {e}")
+            settings.debug_mes(0, "Error", f"{e}")
             return False
-    if settings.config["debug"]>=2:
-        print(f"Debug 2 - RUNNING - Finished creating audiobook folder strucure and cataloging audiobooks.")
+
+        settings.debug_mes(2, "RUNNING", "Finished creating audiobook folder structure and cataloging audiobooks.") 
+    
     return True
 
 # extracts downloaded zip file from libro office
 def extract_zip(path: str) -> bool:
-    if settings.config["debug"]>=1:
-        print(f"Debug 1 - RUNNING - Extracting audiobook from zip.")
+    settings.debug_mes(1, "RUNNING", "Extracting audiobook from zip")
+
     zipFiles = []
     for file in os.listdir(path):
         if file[-4:].lower()==".zip":
             zipFiles.append(file)
+
     for file in zipFiles:
-        print(f"SYS MES - RUNNING - Extracting {path}/{file}")
+        settings.debug_mes(0, "RUNNING", f"Extracting {path}/{file}")
+
         with zipfile.ZipFile(f"{path}/{file}") as zf:
             zf.extractall(path)
         os.remove(f"{path}/{file}")
-    if settings.config["debug"]>=2:
-        print(f"Debug 2 - RUNNING - Finished extracting audiobook from zip.")
+        
+        settings.debug_mes(2, "RUNNING", "Finished extracting audiobook from zip.")
     return True
