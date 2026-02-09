@@ -210,6 +210,7 @@ __marimo__/
 # Repository specific
 ## DIR
 Audiobooks/
+utils_testing/test_files
 main.dist/
 main.build/
 main.onefile-build/
