@@ -1,4 +1,4 @@
-from utils import account, cmdArg, settings, libraryManagment, downloader
+from utils import account, cmdArg, settings, libraryManagement, downloader
 import sys
 
 
@@ -9,23 +9,23 @@ if __name__ == "__main__":
     parsedArg = {}
 
     if sys.argv[1:]:
-        parsedArg = cmdArg.sys_arg_controller()
+        parsedArg = cmdArg.sys_arg_controller(sys.argv[1:])
         if not parsedArg.get("email")==None and not parsedArg.get("password")==None:
             parsedAccount = {"email": parsedArg["email"], "password": parsedArg["password"]}
 
-    print("SYS MES -  START  - Starting Libro-Tea")
+    settings.debug_mes(0, "start", f"Starting Libro-Tea")
 
-    libraryManagment.create_library()
+    libraryManagement.create_library()
 
     accounts = account.set_accounts(parsedAccount)
-    
+
     if len(accounts) == 0:
-        print("SYS MES -  ERROR  - No Libro.fm accounts detected.")
+        settings.debug_mes(0, "Error", f"No Libro.fm accounts Detected")
         cmdArg.sys_arg_help() # EXIT
 
     if parsedArg.get("isbn"):
-            downloader.download_by_isbn(accounts, parsedArg["isbn"])
-            settings.exit_libro_tea() # EXIT
+        downloader.download_by_isbn(accounts, parsedArg["isbn"])
+        settings.exit_libro_tea() # EXIT
 
     if settings.config["catalog_only"]:
         downloader.catalog(accounts)
@@ -37,4 +37,3 @@ if __name__ == "__main__":
 
     downloader.download_only_new(accounts)
     settings.exit_libro_tea() # EXIT
-    
