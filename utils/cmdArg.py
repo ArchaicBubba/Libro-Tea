@@ -1,24 +1,29 @@
 from . import settings
 import os, sys
 
-def sys_arg_controller():
-    if sys.argv[1:]==0:
+def sys_arg_controller(arguments: list):
+    if arguments==0:
         return False
+
     else:
-        parsedArg = sys_arg_parser(sys.argv[1:])
+        parsedArg = sys_arg_parser(arguments)
+
     return parsedArg
 
 def sys_arg_parser(arguments: list):
     parsedArg = {}
     previousArg = False
     command = None
+
     for argument in arguments:
         if previousArg:
             command = argument
             arg = previousArg
             previousArg = False
+
         else:
             arg = argument
+        
         match arg.lower():
             case "-h" | "--help":
                 sys_arg_help()
@@ -66,7 +71,7 @@ def sys_arg_parser(arguments: list):
                     previousArg = arg
                 continue
 
-            case "--output-path":
+            case a if a.startswith("--output-path"):
                 if "=" in arg:
                     path = arg.split("=")
                     settings.config["output_dir"] = file[1]
@@ -77,12 +82,12 @@ def sys_arg_parser(arguments: list):
                     previousArg = arg
                 continue
 
-            case "--preferred-output":
+            case a if a.startswith("--preferred-output"):
                 if "=" in arg:
                     fileFormat = arg.split("=")
-                    settings.config["output_dir"] = fileFormat[1]
+                    settings.config["prefered_output"] = fileFormat[1]
                 elif not command == None:
-                    settings.config["output_dir"] = command
+                    settings.config["prefered_output"] = command
                     command = None
                 else:
                     previousArg = arg
@@ -108,6 +113,7 @@ def sys_arg_parser(arguments: list):
                     command = None
                 else:
                     previousArg = arg
+                continue
 
             case a if a.startswith("--account"):
                 if "=" in arg:
@@ -136,7 +142,7 @@ def sys_arg_parser(arguments: list):
                 continue
 
             case _:
-                print(f"SYS MES -  ERROR  - Invalid Peramiter: {arg}")
+                settings.debug_mes(0, "Error", f"Invalid Peramiter: {arg}")
                 sys_arg_help()
 
     return parsedArg
@@ -150,9 +156,11 @@ def parses_file_path(path: str):
             os.makedirs(os.path.dirname(path))
         filePath = f"{os.path.dirname(path)}/"
         return filePath, fileName
+
     else:
         filePath = "./"
         fileName = path
+
     return filePath, fileName
 
 # Pre processing for parses_file_path.
