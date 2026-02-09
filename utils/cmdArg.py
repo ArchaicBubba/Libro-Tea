@@ -1,6 +1,7 @@
 from . import settings
 import os, sys
 
+# Determins on wether or not there are any system arguments
 def sys_arg_controller(arguments: list):
     if arguments==0:
         return False
@@ -10,6 +11,7 @@ def sys_arg_controller(arguments: list):
 
     return parsedArg
 
+# Parses system arguments into a usable arguments for the program
 def sys_arg_parser(arguments: list):
     parsedArg = {}
     previousArg = False
