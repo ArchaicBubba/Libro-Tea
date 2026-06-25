@@ -27,7 +27,7 @@ def get_config() -> dict:
         "database_file":   get_env_var("LIBRO-TEA_database_file", "library.db"),
         "database_dir":    get_env_var("LIBRO-TEA_database_dir", "./"),
         "output_dir":      get_env_var("LIBRO-TEA_output_dir", "./Audiobooks"),
-        "working_dir":     get_env_var("LIBRO-TEA_working_dir", "./"),
+        "working_dir":     get_env_var("LIBRO-TEA_working_dir", "/tmp/librotea"),
         "debug":           get_env_var("LIBRO-TEA_debug", 0)
     }
 
