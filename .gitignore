@@ -215,6 +215,8 @@ main.dist/
 main.build/
 main.onefile-build/
 .vscode/
+tmp/
+temp/
 
 ## Files
 account.json
@@ -224,3 +226,5 @@ library.db
 note.txt
 requirements.txt
 LICENSE
+database.db
+docker-compose.yaml
