@@ -10,7 +10,7 @@ def set_accounts(parsedAccount):
     if (os.path.exists(f"{settings.config["account_dir"]}/{settings.config["account_file"]}")):
         settings.debug_mes(1, "SUCCESS", f"{settings.config["account_file"]} file found; setting accounts from JSON.")
 
-        with open(f"{settings.config["account_dir"]}{settings.config["account_file"]}", "r") as file:
+        with open(f"{settings.config["account_dir"]}/{settings.config["account_file"]}", "r") as file:
             accounts = json.loads(file.read())
         
         settings.debug_mes(2, "RUNNING", f"Loaded {len(accounts)} accounts from file.")
@@ -42,9 +42,9 @@ def set_accounts_from_env_var(numAccounts: int):
     accounts = {}
 
     for key in os.environ.keys():
-        if key.startswith("Libro_FM_account_user_"):
+        if key.startswith("LIBRO_FM_account_user_"):
             user.append(key)
-        if key.startswith("Libro_FM_account_password_"):
+        if key.startswith("LIBRO_FM_account_password_"):
             password.append(key)
 
     user.sort()
