@@ -11,29 +11,37 @@ def download_audiobook(audiobook: dict, client: dict) -> bool:
     # Identifes and makes audiobook path. 
     authors = Path(clean_filename(', '.join(audiobook.authors)))
     title = Path(clean_filename(audiobook.title))
+    workingPath = settings.config["working_dir"] / authors / title
     path = settings.config["output_dir"] / authors / title
+
+    Path(workingPath).mkdir(parents=True, exist_ok=True)
     path.mkdir(parents=True, exist_ok=True)
+
+    settings.clear_working_files(workingPath)
 
     bookFiles = []
     # This will check if it will rename the download audiobook to a folder with one already inside.
     # IE running repeatly. It will tell the script to skip over renaming it. 
     if settings.config["rename_to_title"]==True:
-        bookFiles = metadata.enumerate_audiobook_folder(path)
+        bookFiles = settings.enumerate_audiobook_folder(workingPath)
+    
+    if not libraryManagement.check_book_exists(audiobook.isbn):
+        libraryManagement.add_book(audiobook.isbn, audiobook.title)
 
-    # In try catch in case download failes, wont kill eithire 
+    # In try catch in case download fails, wont kill entire program 
     try:
         if settings.config["prefered_output"].lower()=="mp3":
             settings.debug_mes(0, "RUNNING", f"Starting download for \"{audiobook.title}\" in MP3; please wait.")
             attempt = client.download_mp3(audiobook, path)
-            extract_zip(path)
+            extract_zip(workingPath)
 
         elif settings.config["prefered_output"].lower()=="m4b":
             settings.debug_mes(0, "Running", f"Starting download for \"{audiobook.title}\" in M4B; please wait.")
-            attempt = client.download_m4b(audiobook, path)
+            attempt = client.download_m4b(audiobook, workingPath)
 
         else: # IF not specified by user, it will attempt both
             settings.debug_mes(0, "Running", f"Starting download for \"{audiobook.title}\".  please wait.")
-            attempt = client.download(audiobook, path)
+            attempt = client.download(audiobook, workingPath)
 
         if not attempt:
 
@@ -41,16 +49,15 @@ def download_audiobook(audiobook: dict, client: dict) -> bool:
             settings.debug_mes(0, "Error", f"Failed to download {audiobook.title}")
             return False
 
-        # Changes audiobook status in database
-        libraryManagement.set_book_downloaded(audiobook.isbn)
-
     except Exception as e:
         settings.debug_mes(0, "ERROR", f"Error downloading \"{audiobook.title}\": {e}")
         return False
     
     # Checks and changes name of the audiobook audio files
     if settings.config["rename_to_title"]==True:
-        metadata.rename_to_title(audiobook.title, bookFiles, path)
+        metadata.rename_to_title(audiobook.title, bookFiles, workingPath)
+
+    successMove = settings.move_from_working(audiobook.title, workingPath, path)
 
     # Checks and gets cover for audiobook if wanted
     if settings.config["export_cover"]==True:
@@ -64,8 +71,16 @@ def download_audiobook(audiobook: dict, client: dict) -> bool:
     if settings.config["export_cue"]==True:
         metadata.generate_cue_from_file(audiobook.title, path)
     
-    settings.debug_mes(2, "SUCCESS", f"Download for \"{audiobook.title}\" complete.")
-    return True
+    # Check if it was able to be moved to the audiobook folder
+    if successMove:
+        # Changes audiobook status in database
+        libraryManagement.set_book_downloaded(audiobook.isbn)
+        settings.debug_mes(2, "SUCCESS", f"Download for \"{audiobook.title}\" complete.")
+        return True
+    
+    settings.debug_mes(0, "Failure", f"Download for \"{audiobook.title}\" Failed.")
+
+    return False
 
 # Decides weather to download audiobook based off of library database. If audiobook is "New" it will be downloaded. 
 # Audiobooks are stored in database as ISBNs, if multuple accounts own the same book it will only be downloaded once. 
@@ -81,7 +96,6 @@ def download_only_new(accounts: dict) -> bool:
 
             for audiobook in page.audiobooks:                        
                 if not libraryManagement.check_book_exists(audiobook.isbn):
-                    libraryManagement.add_book(audiobook.isbn, audiobook.title)
                     download_audiobook(audiobook, client)
                     continue
 
@@ -127,7 +141,7 @@ def download_by_isbn(accounts: dict, isbn: int) -> bool:
 def force_download_all(accounts: dict) -> bool:
     if not settings.config["force_download"]:
         return
-
+    
     settings.debug_mes(1, "RUNNING", "Downloading all audiobooks associated with given accounts.")
     for account in accounts.values():
         # in try Catch to check if account credentials are valid, if not it wont kill the program and will try the next account if present.
