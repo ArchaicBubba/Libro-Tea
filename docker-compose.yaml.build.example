@@ -1,7 +1,7 @@
 services:
   libro-tea:
-    image: archaicbubba/libro-tea:latest
-#    build: .
+#    image: archaicbubba/libro-tea:latest
+    build: .
     container_name: libro-tea
     restart: unless-stopped
     volumes:
