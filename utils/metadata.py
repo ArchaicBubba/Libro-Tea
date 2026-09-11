@@ -6,7 +6,7 @@ import os, json, requests, datetime, math
 
 # Downloads the cover from LibroFM. Saves in audiobook folder.
 def export_cover(title: str, coverURL:str, path:str) -> bool:
-    settings.debug_mes(1, "Running", f"Starting cover download for \"{title}\", file path will be \"{path}/cover.jpg.\"")
+    settings.debug_mes(1, "Running", f"Starting cover download for \"{title}\"")
 
     fullURL = f"https:{coverURL}"
     response = requests.get(fullURL)
@@ -38,8 +38,8 @@ def export_metadata(audiobook: dict, path: str) -> bool:
 
     # Checks if it apart of a series
     if audiobook.series is not None:
-        if audiobook.series_num is not None:
-            series = str(audiobook.series + " #" + audiobook.series_num)
+        if audiobook.series_num is not None and audiobook.series_num is int:
+            series = audiobook.series + " #" + str(audiobook.series_num)
         else:
             series = audiobook.series
     else:
@@ -80,7 +80,7 @@ def export_metadata(audiobook: dict, path: str) -> bool:
 def rename_to_title(title: str, ignoredFiles: list, path: str) -> bool:
     settings.debug_mes(1, "Running", f"Renaming audiobook files for \"{title}\"")
 
-    bookFiles = enumerate_audiobook_folder(path)
+    bookFiles = settings.enumerate_audiobook_folder(path)
 
     for file in bookFiles:
         if file in ignoredFiles:
@@ -93,25 +93,25 @@ def rename_to_title(title: str, ignoredFiles: list, path: str) -> bool:
             for i, file in enumerate(bookFiles):
 
                 fileName, fileExt = os.path.splitext(file)
-                settings.debug_mes(1, "Running", f"Renaming \"{file}\" to \"{title} - part {i + 1 :03d}{fileExt}\"")
+                settings.debug_mes(2, "Running", f"Renaming \"{file}\" to \"{title} - part {i + 1 :03d}{fileExt}\"")
                 os.rename(f"{path}/{file}", f"{path}/{title} - part {i + 1:03d}{fileExt}")
 
         elif len(bookFiles)==1: 
             fileName, fileExt = os.path.splitext(bookFiles[0])
-            settings.debug_mes(1, "Running", f"Renaming \"{bookFiles[0]}\" to \"{title}{fileExt}\"")
+            settings.debug_mes(2, "Running", f"Renaming \"{bookFiles[0]}\" to \"{title}{fileExt}\"")
             os.rename(f"{path}/{bookFiles[0]}", f"{path}/{title}{fileExt}")
         
         settings.debug_mes(1, "Success", f"Finished renaming audiobook files for \"{title}\"")
         return True
 
-    settings.debug_mes(1, "Failure", f"Unable to rename audiobook files for \"{title}\"")
+    settings.debug_mes(0, "Failure", f"Unable to rename audiobook files for \"{title}\"")
     return False
 
 # generates the cue file from the mp3s track length
 def generate_cue_from_file(title: str, path: str) -> bool:
     settings.debug_mes(1, "Running", f"Generating cue for \"{title}\"")
     
-    bookFiles = enumerate_audiobook_folder(path)
+    bookFiles = settings.enumerate_audiobook_folder(path)
 
     if bookFiles:
         bookFiles.sort()
@@ -124,7 +124,7 @@ def generate_cue_from_file(title: str, path: str) -> bool:
             for i, file in enumerate(bookFiles):
                 fileName, fileExt = os.path.splitext(file)
                 f.write(f"FILE \"{file}\"\n")
-
+                
                 if fileExt.lower()==".mp3":
                     mp3 = MP3(f"{path}/{file}")
                     f.write(f"  TRACK {i} AUDIO\n    TITLE \"{fileName}\"\n    INDEX 01 00:00:00\n")
@@ -144,7 +144,6 @@ def generate_cue_from_file(title: str, path: str) -> bool:
 
 # calculates min sec and frames for cue files
 def cue_time(time):
-    settings.debug_mes(2, "Running", "Entering CueTime")
 
     cueTime = {}
     cueTime["minutes"] = int(time // 60)
@@ -158,7 +157,7 @@ def generate_cue_for_metadata(title: str, path: str) -> dict:
     settings.debug_mes(1, "Running", "Generating chapter times for metadata")
     chapters = []
 
-    bookFiles = enumerate_audiobook_folder(path)
+    bookFiles = settings.enumerate_audiobook_folder(path)
 
     if len(bookFiles)>1:
         bookFiles.sort()
@@ -240,20 +239,8 @@ def generate_cue_for_metadata(title: str, path: str) -> dict:
                 }
 
             totalTime += float(mp3.info.length)
-                    
 
-    settings.debug_mes(1, "Success", "Generating chapter times for metadata")
+    settings.debug_mes(1, "Success", "Generated chapter times for metadata")
     return chapters
     
     return False
-
-# Lists 
-def enumerate_audiobook_folder(path: str) -> list:
-    bookFiles = []
-
-    for file in os.listdir(path):
-        fileName, fileExt = os.path.splitext(file)
-        if fileExt.lower()==".mp3" or fileExt.lower()==".m4b":
-            bookFiles.append(file)
-
-    return bookFiles
