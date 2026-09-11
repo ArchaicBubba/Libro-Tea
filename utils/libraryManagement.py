@@ -1,11 +1,15 @@
 from . import settings
 import sqlite3
+from pathlib import Path
+
 
 # Creates Library to store audiobook information in. Only stores ISBN, Title, and download status
 def create_library() -> None:
     settings.debug_mes(1, "Running", f"Intializing Database")
 
-    with sqlite3.connect(f"{settings.config["database_dir"]}{settings.config["database_file"]}") as conn:
+    Path(settings.config["database_dir"]).mkdir(parents=True, exist_ok=True)
+
+    with sqlite3.connect(f"{settings.config["database_dir"]}/{settings.config["database_file"]}") as conn:
         conn.execute('''
             CREATE TABLE IF NOT EXISTS library (
                 ISBN INTEGER PRIMARY KEY, 
@@ -23,7 +27,7 @@ def add_book(ISBN: int, Title: str) -> bool:
     if check_book_exists(ISBN):
         return False
     
-    with sqlite3.connect(f"{settings.config["database_dir"]}{settings.config["database_file"]}") as conn:
+    with sqlite3.connect(f"{settings.config["database_dir"]}/{settings.config["database_file"]}") as conn:
         cursor = conn.cursor()
         cursor.execute(f'''
             INSERT INTO library (ISBN, Title, Downloaded)
@@ -38,7 +42,7 @@ def add_book(ISBN: int, Title: str) -> bool:
 def check_book_exists(ISBN: int) -> bool:
     settings.debug_mes(1, "Running", f"ISBN:{ISBN} - Checking if book exists in library")
     
-    with sqlite3.connect(f"{settings.config["database_dir"]}{settings.config["database_file"]}") as conn:
+    with sqlite3.connect(f"{settings.config["database_dir"]}/{settings.config["database_file"]}") as conn:
         cursor = conn.cursor()
         cursor.execute(f'''
             SELECT ISBN
@@ -58,7 +62,7 @@ def check_book_exists(ISBN: int) -> bool:
 def is_book_downloaded(ISBN: int) -> bool:
     settings.debug_mes(1, "Running", f"ISBN:{ISBN} - Checking if the book has been downloaded previously.")
 
-    with sqlite3.connect(f"{settings.config["database_dir"]}{settings.config["database_file"]}") as conn:
+    with sqlite3.connect(f"{settings.config["database_dir"]}/{settings.config["database_file"]}") as conn:
         cursor = conn.cursor()
         cursor.execute(f'''
             SELECT Downloaded
@@ -81,7 +85,7 @@ def is_book_downloaded(ISBN: int) -> bool:
 def set_book_downloaded(ISBN: int) -> None:
     settings.debug_mes(2, "Running", f"ISBN:{ISBN} - Marking book as being downloaded.")
 
-    with sqlite3.connect(f"{settings.config["database_dir"]}{settings.config["database_file"]}") as conn:
+    with sqlite3.connect(f"{settings.config["database_dir"]}/{settings.config["database_file"]}") as conn:
         cursor = conn.cursor()
         cursor.execute(f'''
             UPDATE library
