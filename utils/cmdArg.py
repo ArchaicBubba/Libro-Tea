@@ -54,6 +54,10 @@ def sys_arg_parser(arguments: list):
                 settings.config["rename_to_title"] = True
                 continue
 
+            case "--keep-working-dir":
+                settings.config["clear_temp"] = False
+                continue
+
             case "-v" | "--debug":
                 settings.config["debug"] = 1 
                 continue
@@ -186,6 +190,7 @@ Libro-Tea allows you to download all audiobooks owned by one or more Libro.fm ac
          --export-cue: Generates or exports a CUE file and places it in audiobook folder.
          --export-metadata: Downloads cover art from Libro.fm and places it in audiobook folder.
          --rename-to-title: Renames the downloaded audiobook audio files to the title of the book.
+         --keep-working-dir: Keeps the working dir after competion.
          --download-one: Downloads a single book by specified ISBN. Must be owned by a used account.
          --download-all: Downloads all audiobooks, regardless of download status
          --output-path: Changes the audiobook folder name and location.
