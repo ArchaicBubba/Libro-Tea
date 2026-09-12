@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 RUN mkdir -p /librotea/AudioBooks && mkdir -p /librotea/working_dir && chown -R 1000 /librotea
 
 ## -----------------------------------------------------
-#FROM dhi.io/python:3.13-alpine AS runtime-stage
-FROM dhi.io/python:3.13-alpine3.23-dev AS runtime-stage
+#FROM dhi.io/python:3.13-alpine3.23-dev AS runtime-stage
+FROM dhi.io/python:3.13-alpine AS runtime-stage
 
 WORKDIR /librotea
 ENV PYTHONDONTWRITEBYTECODE=1
