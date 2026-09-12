@@ -2,7 +2,6 @@ from . import settings
 import sqlite3
 from pathlib import Path
 
-
 # Creates Library to store audiobook information in. Only stores ISBN, Title, and download status
 def create_library() -> None:
     settings.debug_mes(1, "Running", f"Intializing Database")
@@ -58,6 +57,25 @@ def check_book_exists(ISBN: int) -> bool:
     settings.debug_mes(2, "Running", f"ISBN:{ISBN} - Not found in library.")
     return False
 
+# gets list of books that have not been downloaded
+def get_not_downloaded_books() -> list:
+    settings.debug_mes(1, "Running", f"Getting books that have not been downloaded.")
+
+    with sqlite3.connect(f"{settings.config["database_dir"]}/{settings.config["database_file"]}") as conn:
+        cursor = conn.cursor()
+        cursor.execute(f'''
+            SELECT ISBN, Title, Downloaded
+            FROM library 
+            WHERE Downloaded=False
+            ''')
+        books = cursor.fetchall()
+        library = []
+        for book in books:
+            library.append(book[0])
+        
+        settings.debug_mes(0, 'Running', f'{len(library)} waiting to be downloaded.' )
+    return library
+
 # Checks if a book has been downloaded
 def is_book_downloaded(ISBN: int) -> bool:
     settings.debug_mes(1, "Running", f"ISBN:{ISBN} - Checking if the book has been downloaded previously.")
@@ -95,4 +113,3 @@ def set_book_downloaded(ISBN: int) -> None:
         conn.commit()
         
     return
-
