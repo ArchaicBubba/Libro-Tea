@@ -25,7 +25,9 @@ def start_libro_tea() -> bool:
 
         if len(accounts) == 0:
             settings.debug_mes(0, "Error", "No Libro.fm accounts Detected")
-            cmdArg.sys_arg_help() # EXIT
+            if __name__ == "__main__":
+                cmdArg.sys_arg_help() # EXIT
+            return False
 
         # loads all books into library
         downloader.catalog(accounts)
