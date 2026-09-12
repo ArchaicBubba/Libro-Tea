@@ -1,13 +1,11 @@
 services:
   libro-tea:
-#    image: archaicbubba/libro-tea:latest
     build: .
     container_name: libro-tea
     restart: unless-stopped
     volumes:
       - path/to/your/config:/librotea/config
       - path/to/your/audiobook:/librotea/AudioBooks
-      - path/to/your/working_folder:/librotea/working_folder #optional, and not recommended
     environment:
 #     How often LIBRO TEA will check for new AudioBooks
       - LIBRO_TEA_second=0
@@ -23,8 +21,8 @@ services:
       - LIBRO_TEA_clear_working=True
 #      - LIBRO_TEA_debug=0 # values 0-2
 #     User settings, Can be put here or in the account json file in config. Libro_FM_account_user_n, Libro_FM_account_password_n
-      - LIBRO_FM_account_user_1=user@example.com
-      - LIBRO_FM_account_password_1=PaSSwoRd
+#      - LIBRO_FM_account_user_1=user@example.com
+#      - LIBRO_FM_account_password_1=password
 #      - LIBRO_FM_account_user_2=/run/secrets/account_user_2
 #      - LIBRO_FM_account_password_2=/run/secrets/account_password_2
 #    secrets:
