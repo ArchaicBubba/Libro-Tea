@@ -224,7 +224,6 @@ accounts.json
 config.json
 library.db
 note.txt
-requirements.txt
 LICENSE
 database.db
 docker-compose.yaml

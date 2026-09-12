@@ -1,0 +1,5 @@
+librofm==0.2.0
+mutagen==1.47.0
+requests==2.33.0
+msgpack==1.2.1
+setuptools==83.0.0
