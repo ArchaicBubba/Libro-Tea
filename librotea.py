@@ -23,21 +23,19 @@ def start_libro_tea() -> bool:
 
         accounts = account.set_accounts(parsedAccount)
 
-        
-
         if len(accounts) == 0:
             settings.debug_mes(0, "Error", "No Libro.fm accounts Detected")
             cmdArg.sys_arg_help() # EXIT
 
+        # loads all books into library
+        downloader.catalog(accounts)
+
+        if settings.config["catalog_only"]:
+            return True
+
         if "isbn" in parsedArg:
             print(settings.config)
             downloader.download_by_isbn(accounts, parsedArg["isbn"])
-            if settings.config["clear_working"]:
-                settings.clear_working_files(settings.config["working_dir"])
-            return True
-
-        if settings.config["catalog_only"]:
-            downloader.catalog(accounts)
             if settings.config["clear_working"]:
                 settings.clear_working_files(settings.config["working_dir"])
             return True
@@ -51,6 +49,7 @@ def start_libro_tea() -> bool:
         settings.debug_mes(0, "Running", "Checking for new Audiobooks")
 
         downloader.download_only_new(accounts)
+        
         if settings.config["clear_working"]:
             settings.clear_working_files(settings.config["working_dir"])
             return True
