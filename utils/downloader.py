@@ -24,9 +24,6 @@ def download_audiobook(audiobook: dict, client: dict) -> bool:
     # IE running repeatly. It will tell the script to skip over renaming it. 
     if settings.config["rename_to_title"]==True:
         bookFiles = settings.enumerate_audiobook_folder(workingPath)
-    
-    if not libraryManagement.check_book_exists(audiobook.isbn):
-        libraryManagement.add_book(audiobook.isbn, audiobook.title)
 
     # In try catch in case download fails, wont kill entire program 
     try:
@@ -93,17 +90,11 @@ def download_only_new(accounts: dict) -> bool:
             client = LibroFMClient(account["email"],account["password"])
             page = client.get_library()
             # Checks and downloads each new audiobook in the account. 
-
+            current_library = libraryManagement.get_not_downloaded_books()
             for audiobook in page.audiobooks:                        
-                if not libraryManagement.check_book_exists(audiobook.isbn):
+                if audiobook.isbn in current_library:
                     download_audiobook(audiobook, client)
                     continue
-
-                else:
-                    if libraryManagement.is_book_downloaded(audiobook.isbn):
-                        continue
-
-                download_audiobook(audiobook, client)
 
         except Exception as e:
             settings.debug_mes(0, "ERROR", f"{e}")
