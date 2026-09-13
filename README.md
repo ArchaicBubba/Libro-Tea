@@ -18,14 +18,6 @@
 
 ---
 
-## Docker
-
-```text
-
-```
-
----
-
 ### Environment Variables
 
 ```text
