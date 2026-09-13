@@ -104,9 +104,7 @@ Building from source
 ```
 git clone https://github.com/ArchaicBubba/Libro-Tea.git
 cd Libro-Tea
-mv docker-compose.yaml.build.example docker-compose.yaml
-nano docker-compose.yaml # modify your docker compose file
-docker compose up
+docker build -t libro-tea .
 ```
 
 Common Issues
