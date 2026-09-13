@@ -154,9 +154,6 @@ def force_download_all(accounts: dict) -> bool:
 def catalog(accounts: dict) -> bool:
     settings.debug_mes(1, "RUNNING", f"Creating audiobook folder strucure and cataloging audiobooks.")
 
-    if not settings.config["catalog_only"]:
-        return False
-
     for account in accounts.values():
         # in try Catch to check if account credentials are valid, if not it wont kill the program and will try the next account if present.
         try:

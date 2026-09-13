@@ -36,7 +36,6 @@ def start_libro_tea() -> bool:
             return True
 
         if "isbn" in parsedArg:
-            print(settings.config)
             downloader.download_by_isbn(accounts, parsedArg["isbn"])
             if settings.config["clear_working"]:
                 settings.clear_working_files(settings.config["working_dir"])
