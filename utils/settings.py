@@ -1,4 +1,4 @@
-import os, json, sys, shutil
+import os, json, sys, shutil, time
 
 # exit libro-tea
 def exit_libro_tea():
@@ -111,19 +111,18 @@ def get_docker_secret_value(secret_file) -> str:
 # Displays system and debug messages. done without logger.
 # settings.debug_mes(, "", f"")
 def debug_mes(debug_lvl: int, mes_status:str, mes: str) -> None:
-    if config["debug"] >= debug_lvl:
-        match debug_lvl:
-            case _ if debug_lvl == 1:
-                print(f"DEBUG 1 - {mes_status.capitalize().center(7)} - {mes}")
-                return
-            case _ if debug_lvl >= 2:
-                print(f"DEBUG 2 - {mes_status.capitalize().center(7)} - {mes}")
-                return
-            case _:
-                print(f"SYS MES - {mes_status.capitalize().center(7)} - {mes}")
-                return
-    else:
-        return
+    current_time = time.strftime("%H:%M:%S", time.localtime())
+
+    match debug_lvl:
+        case _ if debug_lvl == 1:
+            print(f"DEBUG 1 - {mes_status.capitalize().center(7)} - {current_time} - {mes}")
+            return
+        case _ if debug_lvl >= 2:
+            print(f"DEBUG 2 - {mes_status.capitalize().center(7)} - {current_time} - {mes}")
+            return
+        case _:
+            print(f"SYS MES - {mes_status.capitalize().center(7)} - {current_time} - {mes}")
+            return
 
 # Lists book files in a folder
 def enumerate_audiobook_folder(path: str) -> list:

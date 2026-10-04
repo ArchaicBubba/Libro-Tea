@@ -1,9 +1,11 @@
-import time, os, shutil
+import time, os, shutil, time
 from program import librotea
 
 # Stripped down debug, keeps things consistent
 def sys_mes(mes_status:str, mes: str) -> None:
-    print(f"SYS MES - {mes_status.capitalize().center(7)} - {mes}")
+    current_time = time.strftime("%H:%M:%S", time.localtime())
+
+    print(f"SYS MES - {mes_status.capitalize().center(7)} - {current_time} - {mes}")
     return
 
 def get_int_env_var(envVar, defaultValue) -> int:
